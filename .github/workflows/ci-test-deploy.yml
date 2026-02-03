@@ -1,4 +1,4 @@
-name: CI → Test → Deploy to Render
+name: Node CI Tests
 
 on:
   push:
@@ -24,18 +24,3 @@ jobs:
 
       - name: Run tests
         run: npm test
-
-  # deploy:
-  #   needs: test                           # only run if tests pass
-  #   if: github.ref == 'refs/heads/main'   # only on main branch
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Trigger Render deploy
-  #       run: |
-  #         curl -X POST \
-  #           -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-  #           "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys"
