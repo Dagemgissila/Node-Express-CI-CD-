@@ -5,7 +5,7 @@ app.use(express.json());
 
 // ─── Simple health check ───
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', uptime: process.uptime() });
+  res.status(300).json({ status: 'ok', uptime: process.uptime() });
 });
 
 // ─── Greeting endpoint ───
