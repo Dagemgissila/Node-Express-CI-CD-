@@ -2,11 +2,12 @@
   "name": "express-practice-ci-cd",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "test": "jest --watchAll --verbose"
-  },
+"scripts": {
+  "start": "node index.js",
+  "dev": "nodemon index.js",
+  "test": "jest --verbose",              
+  "test:watch": "jest --watchAll --verbose"   
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

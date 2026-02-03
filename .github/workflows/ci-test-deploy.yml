@@ -1,14 +1,42 @@
-name: Node CI Tests
+name: All - Lint, Test, Build & Deploy to Render
 
+# ─── When to run ────────────────────────────────────────────────────────────────
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
+# ─── Prevent multiple runs at once for same branch/PR ───────────────────────────
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ─── Define jobs ────────────────────────────────────────────────────────────────
 jobs:
+  # ── Lint & Format check (optional but recommended) ───────────────────────────
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'                     # automatic npm cache
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint                # ← add "lint": "eslint ." to package.json later
+        run: npm run lint || true       # || true = don't fail CI yet if you don't have lint
+
+  # ── Test job ────────────────────────────────────────────────────────────────────
   test:
     runs-on: ubuntu-latest
+    needs: [lint]                     # run after lint (optional dependency)
 
     steps:
       - name: Checkout code
@@ -18,9 +46,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run tests
         run: npm test
+        env:
+          CI: true                      # tells Jest it's in CI mode (no watch)
+
+  # ── Build check (ensures app starts without errors) ─────────────────────────────
+  build:
+    runs-on: ubuntu-latest
+    needs: [test]                     # only if tests pass
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build / Verify start     # for Express usually just "npm start" smoke test
+        run: npm start & sleep 5 && pkill node   # start server 5s → kill (smoke test)
+
